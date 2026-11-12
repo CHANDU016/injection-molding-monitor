@@ -1,0 +1,8 @@
+{
+  "trained_at": "2026-11-12T08:49:39",
+  "training_rows": 500,
+  "training_source": "seed_csv",
+  "defect_model_trusted": false,
+  "cv_auc": 0.571,
+  "version": "20261112084947"
+}

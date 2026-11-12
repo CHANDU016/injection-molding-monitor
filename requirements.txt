@@ -1,0 +1,10 @@
+pandas
+numpy
+scikit-learn
+joblib
+pyyaml
+apscheduler
+streamlit
+streamlit-autorefresh
+plotly
+requests

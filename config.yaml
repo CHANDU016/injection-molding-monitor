@@ -1,0 +1,54 @@
+# ---------------------------------------------------------------
+# MODE: "dummy" = simulated hourly data (for building/testing)
+#       "real"  = read from the machine (implement RealCollector)
+# ---------------------------------------------------------------
+mode: dummy
+
+database: data/molding.db
+seed_csv: data/injection_moulding_quality_data.csv
+predictions_csv: data/predictions.csv
+model_dir: models
+
+cycles_per_hour: 60          # cycles collected / stored every hour
+retrain_day: sun             # weekly retrain (day + hour below)
+retrain_hour: 2
+min_real_rows_to_train: 500  # real mode: train on real data only after this many rows
+
+parameters:
+  - Melt_Temperature_C
+  - Mould_Temperature_C
+  - Injection_Pressure_bar
+  - Injection_Speed_mm_s
+  - Holding_Pressure_bar
+  - Holding_Time_s
+  - Cooling_Time_s
+  - Cycle_Time_s
+  - Hydraulic_Oil_Temperature_C
+  - Product_Weight_g
+
+# Alarm limits. By default they are derived from the data: mean +/- N sigma.
+# Put your real machine / process limits in "overrides" (these always win).
+thresholds:
+  auto_sigma: 4
+  overrides:
+    Hydraulic_Oil_Temperature_C: {min: 25, max: 55}   # example: oil above 55C = problem
+    # Melt_Temperature_C: {min: 205, max: 240}
+
+anomaly:
+  contamination: 0.03        # expected share of abnormal cycles
+  hour_alert_rate: 0.15      # alert if >15% of cycles in the hour are anomalous
+  drift_sigma: 4             # alert if hourly mean drifts this far from baseline
+
+defect:
+  alert_threshold: 0.7       # mean defect probability in the hour
+  min_cv_auc: 0.65           # defect model is only "trusted" above this CV ROC-AUC
+
+alerts:
+  cooldown_minutes: 120      # don't repeat the same alert more often than this
+  telegram:
+    enabled: false           # env: TELEGRAM_BOT_TOKEN, TELEGRAM_CHAT_ID
+  email:
+    enabled: false           # env: SMTP_USER, SMTP_PASSWORD
+    smtp_host: smtp.gmail.com
+    smtp_port: 587
+    to: ["you@example.com"]
